@@ -84,7 +84,7 @@ export const DEFAULT_CANDIDATES = [
     createdAt: '2026-11-26T09:00:00.000Z',
     scores: {
       c1: 10,
-      c2: 8,
+      c2: 9.5,
       c3: 9,
       c4: 7,
       c5: 9,
@@ -93,13 +93,13 @@ export const DEFAULT_CANDIDATES = [
     knockoutVSATTP: false,
     knockoutReason: '',
     cvSummary:
-      'Store Manager tại Katinat Coffee & Tea (6/2024–6/2025, tham gia NSO mở mới miền Bắc); Restaurant Manager Nhà hàng Thái SongKran (6/2023–6/2024); Store Manager LV1,2 tại Highlands Coffee Sân bay Quốc tế (11/2021–8/2024). Vững COL, COGS, COS.',
+      'Store Manager tại Katinat Coffee & Tea (Trung Hòa & NSO Phùng Hưng, 6/2024–6/2025: quy mô ~48 nhân sự gồm MOD + 18 FT + 26 PT, sales 1.8–2 tỷ/tháng Gross, 42% Dine-in / 58% Take Away); Restaurant Manager Nhà hàng Thái SongKran (6/2023–6/2024); Store Manager LV1,2 tại Highlands Coffee Sân bay Quốc tế (11/2021–8/2024). Vững ADS, Target Sales, COL, COGS, PnL.',
     strengths:
-      'Kinh nghiệm thực chiến chuỗi đồ uống lớn (Katinat, Highlands sân bay) rất sát mô hình Tutimi; nắm chắc chỉ số vận hành COL, COGS, COS và quy trình QSC.',
+      'Kinh nghiệm thực chiến chuỗi đồ uống quy mô lớn (Katinat 1.8–2 tỷ/tháng, ~48 nhân sự); kiểm soát toàn diện ADS, COGS, COL, PnL; biết phân quyền kiểm soát VSATTP theo đầu mục cho MOD và quản lý tồn cuối ngày theo Holding Times (hủy trà cuối ca). Mức lương kỳ vọng 13–15 triệu Gross rất phù hợp, nhận việc ngay.',
     weaknesses:
-      'Mốc thời gian 2023–2024 bị trùng giữa Highlands (11/2021–8/2024) và Nhà hàng SongKran (6/2023–6/2024); chưa thể hiện rõ chi tiết xử lý CSKH tại chỗ trong CV.',
+      'Tỷ lệ Dine-in tại điểm bán cũ chỉ 42% (58% Take Away), cần đánh giá thêm thực chiến sảnh đông của Tutimi; vẫn cần xác minh mốc thời gian 2023–2024 trùng giữa Highlands và SongKran và xin thông tin người tham chiếu.',
     interviewNotes:
-      'Cần hỏi rõ mốc thời gian 2023–2024 bị trùng giữa Highlands và Nhà hàng SongKran; xác nhận quy mô nhân sự thực tế 20–30 người và xin thông tin người tham chiếu.',
+      'Đã xác nhận quy mô Katinat Trung Hòa & NSO Phùng Hưng: ~48 nhân sự (MOD, 18 FT, 26 PT), sales 1.8–2 tỷ/tháng. Cần test thêm Role-play CSKH tại sảnh đông & làm rõ quy định hủy trân châu qua đêm theo chuẩn Tutimi, đồng thời xin số người tham chiếu.',
     suggestedQuestions: [
       'Trong CV có giai đoạn 6/2023–6/2024 trùng giữa Highlands Coffee và Nhà hàng Thái SongKran, bạn có thể làm rõ quá trình công tác ở hai nơi này?',
       'Tại Katinat hoặc Highlands, quy mô nhân sự ca đông nhất bạn từng trực tiếp điều phối là bao nhiêu người (full-time/part-time) và bạn giữ chân nhân sự part-time bằng cách nào?',
@@ -113,10 +113,22 @@ export const DEFAULT_CANDIDATES = [
     roleplay: {
       rp1Score: 0,
       rp1Notes: '',
+      rp1Checks: [],
       rp2Score: 0,
-      rp2Notes: '',
-      interviewerDecision: 'pending', // 'pending' | 'hire' | 'consider' | 'reject'
-      interviewDate: '',
+      rp2Notes: 'Ứng viên chia đầu mục VSATTP cho MOD; cuối ngày dư 1/3 căn cứ Holding Times từng nguyên vật liệu để bảo quản tránh hủy vô căn cứ, riêng trà bắt buộc hủy cuối ca.',
+      rp2Checks: [0],
+      attitudeScore: 8.5,
+      leadershipScore: 9,
+      verificationScore: 8,
+      interviewFormat: 'Trực tiếp tại cửa hàng',
+      interviewDate: '2026-11-27',
+      interviewerDecision: 'hire',
+      proposedSalary: '13–15 triệu Gross',
+      availableDate: 'Ngay sau khi có kết quả phỏng vấn',
+      targetStore: '',
+      referenceVerified: false,
+      overallFeedback:
+        'Đã xác nhận quy mô lớn tại Katinat Trung Hòa & NSO Phùng Hưng (~48 nhân sự: MOD + 18 FT + 26 PT; sales 1.8–2 tỷ/tháng; 42% Dine-in / 58% Take Away). Kiểm soát tốt ADS, Target Sales, COGS, COL, PnL; phân công VSATTP theo đầu mục cho MOD và áp dụng Holding Times (hủy trà cuối ca). Mức lương 13–15tr Gross hợp lý, nhận việc ngay. Lưu ý: cần test thêm Role-play CSKH bàn đông & thống nhất quy định hủy trân châu qua đêm của Tutimi.',
       panelNames: 'HR / Quản lý Vận hành / Giám đốc Chuỗi',
     },
   },

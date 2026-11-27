@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { DEFAULT_CANDIDATES, DEFAULT_CRITERIA, DEFAULT_THRESHOLDS } from '../data/defaultData';
 
 const LOCAL_STATE_KEY = 'tutimi_hr_state_v1';
-const LOCAL_SEEDED_KEY = 'tutimi_hr_seeded_ids_v1';
+const LOCAL_SEEDED_KEY = 'tutimi_hr_seeded_ids_v2';
 const LOCAL_SETTINGS_KEY = 'tutimi_hr_settings_v1';
 const SUPABASE_TABLE = 'tutimi_hr_workspace';
 const WORKSPACE_ROW_ID = 'default';
@@ -61,9 +61,20 @@ export function loadLocalState() {
       if (newDefaults.length > 0) {
         candidates = [...newDefaults, ...candidates];
       }
+      // Cập nhật một lần hồ sơ Dương Minh Kha nếu đang ở trạng thái chưa chấm PV
+      if (!seededIds.includes('cand-duong-minh-kha-pv-v2')) {
+        const latestKha = DEFAULT_CANDIDATES.find((dc) => dc.id === 'cand-duong-minh-kha');
+        if (latestKha) {
+          candidates = candidates.map((c) =>
+            c.id === 'cand-duong-minh-kha' && (!c.roleplay || c.roleplay.interviewerDecision === 'pending')
+              ? latestKha
+              : c
+          );
+        }
+      }
       localStorage.setItem(
         LOCAL_SEEDED_KEY,
-        JSON.stringify(DEFAULT_CANDIDATES.map((dc) => dc.id))
+        JSON.stringify([...DEFAULT_CANDIDATES.map((dc) => dc.id), 'cand-duong-minh-kha-pv-v2'])
       );
     } catch {
       // ignore seed tracking errors
