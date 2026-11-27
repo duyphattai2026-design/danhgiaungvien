@@ -1,20 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Printer, AlertTriangle, Download, Loader2 } from 'lucide-react';
-import { toPng } from 'html-to-image';
-import { jsPDF } from 'jspdf';
 import { DEFAULT_ROLEPLAY_SCENARIOS } from '../data/defaultData';
 import StatusBadge from './StatusBadge';
 import { computeInterviewSummary } from './TabInterviewEvaluation';
-
-function toSlug(str = '') {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+import { exportCandidatePdf } from '../utils/exportPdf';
 
 export default function TabPrintA4({
   rankedCandidates,
@@ -24,7 +13,6 @@ export default function TabPrintA4({
 }) {
   const selected =
     rankedCandidates.find((c) => c.id === selectedCandidateId) || rankedCandidates[0] || null;
-  const sheetRef = useRef(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   if (!selected) {
@@ -65,43 +53,10 @@ export default function TabPrintA4({
   };
 
   const handleDownloadPdf = async () => {
-    if (!sheetRef.current || isExportingPdf) return;
+    if (isExportingPdf) return;
     setIsExportingPdf(true);
     try {
-      const dataUrl = await toPng(sheetRef.current, {
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-      });
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const margin = 6;
-      const contentWidth = pdfWidth - margin * 2;
-      const contentHeight = (imgProps.height * contentWidth) / imgProps.width;
-
-      let heightLeft = contentHeight;
-      let position = margin;
-
-      pdf.addImage(dataUrl, 'PNG', margin, position, contentWidth, contentHeight);
-      heightLeft -= pdfHeight - margin * 2;
-
-      while (heightLeft > 1) {
-        position = heightLeft - contentHeight + margin;
-        pdf.addPage();
-        pdf.addImage(dataUrl, 'PNG', margin, position, contentWidth, contentHeight);
-        heightLeft -= pdfHeight - margin * 2;
-      }
-
-      const safeName = toSlug(selected.fullName) || 'Ung-Vien';
-      pdf.save(`Phieu-Danh-Gia-${safeName}.pdf`);
+      await exportCandidatePdf({ candidate: selected, interviewSummary });
     } catch (err) {
       alert(`Không thể xuất PDF trực tiếp: ${err.message}. Bạn có thể dùng nút "In / Lưu PDF".`);
     } finally {
@@ -207,10 +162,7 @@ export default function TabPrintA4({
       </div>
 
       {/* A4 PRINT SHEET */}
-      <div
-        ref={sheetRef}
-        className="a4-sheet mx-auto w-full max-w-[210mm] rounded-xl border border-slate-300 bg-white p-8 sm:p-10 shadow-lg text-slate-900"
-      >
+      <div className="a4-sheet mx-auto w-full max-w-[210mm] rounded-xl border border-slate-300 bg-white p-8 sm:p-10 shadow-lg text-slate-900">
         {/* Sheet Header */}
         <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
           <div>
