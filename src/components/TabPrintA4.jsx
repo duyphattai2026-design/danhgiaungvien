@@ -1,8 +1,20 @@
-import React from 'react';
-import { Printer, AlertTriangle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Printer, AlertTriangle, Download, Loader2 } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import { DEFAULT_ROLEPLAY_SCENARIOS } from '../data/defaultData';
 import StatusBadge from './StatusBadge';
 import { computeInterviewSummary } from './TabInterviewEvaluation';
+
+function toSlug(str = '') {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export default function TabPrintA4({
   rankedCandidates,
@@ -12,6 +24,8 @@ export default function TabPrintA4({
 }) {
   const selected =
     rankedCandidates.find((c) => c.id === selectedCandidateId) || rankedCandidates[0] || null;
+  const sheetRef = useRef(null);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   if (!selected) {
     return (
@@ -50,6 +64,51 @@ export default function TabPrintA4({
     });
   };
 
+  const handleDownloadPdf = async () => {
+    if (!sheetRef.current || isExportingPdf) return;
+    setIsExportingPdf(true);
+    try {
+      const dataUrl = await toPng(sheetRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        cacheBust: true,
+      });
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 6;
+      const contentWidth = pdfWidth - margin * 2;
+      const contentHeight = (imgProps.height * contentWidth) / imgProps.width;
+
+      let heightLeft = contentHeight;
+      let position = margin;
+
+      pdf.addImage(dataUrl, 'PNG', margin, position, contentWidth, contentHeight);
+      heightLeft -= pdfHeight - margin * 2;
+
+      while (heightLeft > 1) {
+        position = heightLeft - contentHeight + margin;
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'PNG', margin, position, contentWidth, contentHeight);
+        heightLeft -= pdfHeight - margin * 2;
+      }
+
+      const safeName = toSlug(selected.fullName) || 'Ung-Vien';
+      pdf.save(`Phieu-Danh-Gia-${safeName}.pdf`);
+    } catch (err) {
+      alert(`Không thể xuất PDF trực tiếp: ${err.message}. Bạn có thể dùng nút "In / Lưu PDF".`);
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       {/* Control Toolbar (hidden when printing) */}
@@ -73,14 +132,30 @@ export default function TabPrintA4({
             <StatusBadge evaluation={selected.evaluation} />
           </div>
 
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-700 shadow-xs"
-          >
-            <Printer className="h-4 w-4" />
-            In / Lưu PDF (Chuẩn A4)
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isExportingPdf}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 shadow-xs disabled:opacity-60"
+            >
+              {isExportingPdf ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              {isExportingPdf ? 'Đang tạo PDF...' : 'Tải PDF ngay'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-700 shadow-xs"
+            >
+              <Printer className="h-4 w-4" />
+              In / Lưu PDF (Chuẩn A4)
+            </button>
+          </div>
         </div>
 
         {/* Quick Role-play & Panel Decision Editor */}
@@ -132,7 +207,10 @@ export default function TabPrintA4({
       </div>
 
       {/* A4 PRINT SHEET */}
-      <div className="a4-sheet mx-auto w-full max-w-[210mm] rounded-xl border border-slate-300 bg-white p-8 sm:p-10 shadow-lg text-slate-900">
+      <div
+        ref={sheetRef}
+        className="a4-sheet mx-auto w-full max-w-[210mm] rounded-xl border border-slate-300 bg-white p-8 sm:p-10 shadow-lg text-slate-900"
+      >
         {/* Sheet Header */}
         <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
           <div>
