@@ -13,13 +13,23 @@ import {
   CheckCircle2,
   Clock,
   AlertOctagon,
+  ClipboardCheck,
 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import { computeInterviewSummary } from './TabInterviewEvaluation';
+
+const DECISION_BADGE = {
+  hire: { label: 'Đề xuất tuyển dụng', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  consider: { label: 'Cân nhắc vòng 2', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  reject: { label: 'Không phù hợp', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
+  pending: { label: 'Chưa chốt PV', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+};
 
 export default function TabRanking({
   rankedCandidates,
   onOpenAddModal,
   onSelectForScoring,
+  onSelectForInterview,
   onSelectForPrint,
   onDeleteCandidate,
 }) {
@@ -154,9 +164,10 @@ export default function TabRanking({
                 <th className="py-3.5 px-4 w-16 text-center">Hạng</th>
                 <th className="py-3.5 px-4">Ứng viên & Liên hệ</th>
                 <th className="py-3.5 px-4 hidden lg:table-cell">Tóm tắt năng lực F&B</th>
-                <th className="py-3.5 px-4 text-center w-28">Tổng điểm</th>
-                <th className="py-3.5 px-4 w-64">Kết quả sàng lọc</th>
-                <th className="py-3.5 px-4 text-right w-48">Thao tác</th>
+                <th className="py-3.5 px-4 text-center w-28">Điểm CV</th>
+                <th className="py-3.5 px-4 w-56">Kết quả sàng lọc CV</th>
+                <th className="py-3.5 px-4 w-44">Kết quả phỏng vấn</th>
+                <th className="py-3.5 px-4 text-right w-56">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
@@ -238,12 +249,32 @@ export default function TabRanking({
                     </td>
 
                     <td className="py-4 px-4 align-top">
-                      <StatusBadge evaluation={cand.evaluation} />
+                      <StatusBadge evaluation={cand.evaluation} compact />
                       {cand.knockoutVSATTP && cand.knockoutReason && (
                         <p className="mt-1.5 text-[11px] text-rose-600 font-medium">
                           Lý do: {cand.knockoutReason}
                         </p>
                       )}
+                    </td>
+
+                    <td className="py-4 px-4 align-top">
+                      {(() => {
+                        const rp = cand.roleplay || {};
+                        const dec = DECISION_BADGE[rp.interviewerDecision || 'pending'] || DECISION_BADGE.pending;
+                        const pvSum = computeInterviewSummary(rp);
+                        return (
+                          <div className="space-y-1">
+                            <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${dec.cls}`}>
+                              {dec.label}
+                            </span>
+                            {pvSum.hasAnyScore && (
+                              <div className="text-[11px] font-semibold text-slate-600">
+                                Điểm PV: <strong className="text-amber-700">{pvSum.overallInterview}/10</strong>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     <td className="py-4 px-4 text-right align-top">
@@ -255,7 +286,16 @@ export default function TabRanking({
                           title="Chấm điểm & Xem CV song song"
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          Chấm điểm
+                          CV
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onSelectForInterview(cand.id)}
+                          className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                          title="Đánh giá kết quả phỏng vấn"
+                        >
+                          <ClipboardCheck className="h-3.5 w-3.5" />
+                          PV
                         </button>
                         <button
                           type="button"

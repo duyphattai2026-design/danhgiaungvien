@@ -3,6 +3,7 @@ import {
   Trophy,
   Columns2,
   Sliders,
+  ClipboardCheck,
   Printer,
   Settings,
   CupSoda,
@@ -23,6 +24,7 @@ import {
 import TabRanking from './components/TabRanking';
 import TabSplitScoring from './components/TabSplitScoring';
 import TabCriteriaAndAi from './components/TabCriteriaAndAi';
+import TabInterviewEvaluation from './components/TabInterviewEvaluation';
 import TabPrintA4 from './components/TabPrintA4';
 import AddCandidateModal from './components/AddCandidateModal';
 import SettingsModal from './components/SettingsModal';
@@ -31,7 +33,8 @@ const TABS = [
   { id: 'ranking', label: '1. Bảng Xếp Hạng', icon: Trophy },
   { id: 'scoring', label: '2. Chấm Điểm & Xem CV', icon: Columns2 },
   { id: 'criteria', label: '3. Tiêu Chí & AI Đọc CV', icon: Sliders },
-  { id: 'print', label: '4. Phiếu A4 & Role-play', icon: Printer },
+  { id: 'interview', label: '4. Kết Quả Phỏng Vấn', icon: ClipboardCheck },
+  { id: 'print', label: '5. Phiếu A4 & In PDF', icon: Printer },
 ];
 
 export default function App() {
@@ -303,6 +306,10 @@ export default function App() {
               setSelectedCandidateId(id);
               setActiveTab('scoring');
             }}
+            onSelectForInterview={(id) => {
+              setSelectedCandidateId(id);
+              setActiveTab('interview');
+            }}
             onSelectForPrint={(id) => {
               setSelectedCandidateId(id);
               setActiveTab('print');
@@ -341,6 +348,19 @@ export default function App() {
             onGoToScoring={(id) => {
               setSelectedCandidateId(id);
               setActiveTab('scoring');
+            }}
+          />
+        )}
+
+        {activeTab === 'interview' && (
+          <TabInterviewEvaluation
+            rankedCandidates={rankedCandidates}
+            selectedCandidateId={selectedCandidateId}
+            onSelectCandidate={setSelectedCandidateId}
+            onUpdateCandidate={handleUpdateCandidate}
+            onGoToPrint={(id) => {
+              setSelectedCandidateId(id);
+              setActiveTab('print');
             }}
           />
         )}

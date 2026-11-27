@@ -2,6 +2,7 @@ import React from 'react';
 import { Printer, AlertTriangle } from 'lucide-react';
 import { DEFAULT_ROLEPLAY_SCENARIOS } from '../data/defaultData';
 import StatusBadge from './StatusBadge';
+import { computeInterviewSummary } from './TabInterviewEvaluation';
 
 export default function TabPrintA4({
   rankedCandidates,
@@ -20,15 +21,25 @@ export default function TabPrintA4({
     );
   }
 
-  const roleplay = selected.roleplay || {
+  const roleplay = {
     rp1Score: 0,
     rp1Notes: '',
     rp2Score: 0,
     rp2Notes: '',
-    interviewerDecision: 'pending',
+    attitudeScore: 0,
+    leadershipScore: 0,
+    verificationScore: 0,
+    interviewFormat: 'Trực tiếp tại cửa hàng',
     interviewDate: '',
     panelNames: 'HR / Quản lý Vận hành / Giám đốc Chuỗi',
+    interviewerDecision: 'pending',
+    proposedSalary: '',
+    availableDate: '',
+    overallFeedback: '',
+    ...(selected.roleplay || {}),
   };
+
+  const interviewSummary = computeInterviewSummary(roleplay);
 
   const updateRoleplay = (patch) => {
     onUpdateCandidate(selected.id, {
@@ -277,38 +288,112 @@ export default function TabPrintA4({
           </div>
         </div>
 
-        {/* Section 3: Final Decision & Signatures */}
+        {/* Section 3: Interview Competencies & Final Decision */}
         <div className="mt-5 page-break-inside-avoid">
-          <div className="rounded-lg border border-slate-300 p-3 text-xs flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <strong>KẾT LUẬN CỦA HỘI ĐỒNG PHỎNG VẤN:</strong>{' '}
-              <span className="ml-2 font-extrabold uppercase text-amber-800">
-                {roleplay.interviewerDecision === 'hire'
-                  ? '☑ ĐỀ XUẤT TUYỂN DỤNG'
-                  : roleplay.interviewerDecision === 'consider'
-                  ? '☑ CÂN NHẮC / THỬ VIỆC'
-                  : roleplay.interviewerDecision === 'reject'
-                  ? '☑ KHÔNG PHÙ HỢP'
-                  : '☐ Đạt   ☐ Cân nhắc   ☐ Không đạt'}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              III. KẾT QUẢ PHỎNG VẤN TRỰC TIẾP &amp; QUYẾT ĐỊNH HỘI ĐỒNG
+            </h2>
+            <div className="text-xs font-bold">
+              Điểm PV tổng hợp:{' '}
+              <span className="text-sm font-extrabold text-amber-700">
+                {interviewSummary.hasAnyScore ? `${interviewSummary.overallInterview}/10` : '_____ / 10'}
               </span>
             </div>
-            <div className="text-slate-500">Ngày PV: ____ / ____ / 202__</div>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-300 text-xs mb-2.5">
+            <thead>
+              <tr className="bg-slate-100 font-bold text-slate-800">
+                <th className="border border-slate-300 py-1 px-2.5 text-left">Tiêu chí phỏng vấn trực tiếp</th>
+                <th className="border border-slate-300 py-1 px-2 text-center w-24">Điểm (/10)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-slate-300 py-1 px-2.5">
+                  Thái độ, Tác phong &amp; Phù hợp văn hóa Tutimi
+                </td>
+                <td className="border border-slate-300 py-1 px-2 text-center font-bold">
+                  {roleplay.attitudeScore > 0 ? roleplay.attitudeScore : '—'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-slate-300 py-1 px-2.5">
+                  Năng lực Dẫn dắt &amp; Quản lý đội ngũ (20–30 nhân sự)
+                </td>
+                <td className="border border-slate-300 py-1 px-2 text-center font-bold">
+                  {roleplay.leadershipScore > 0 ? roleplay.leadershipScore : '—'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-slate-300 py-1 px-2.5">
+                  Độ trung thực &amp; Xác minh CV / Người tham chiếu
+                </td>
+                <td className="border border-slate-300 py-1 px-2 text-center font-bold">
+                  {roleplay.verificationScore > 0 ? roleplay.verificationScore : '—'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="rounded-lg border border-slate-300 p-3 text-xs space-y-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <strong>KẾT LUẬN CỦA HỘI ĐỒNG PHỎNG VẤN:</strong>{' '}
+                <span className="ml-2 font-extrabold uppercase text-amber-800">
+                  {roleplay.interviewerDecision === 'hire'
+                    ? '☑ ĐỀ XUẤT TUYỂN DỤNG'
+                    : roleplay.interviewerDecision === 'consider'
+                    ? '☑ CÂN NHẮC / THỬ VIỆC'
+                    : roleplay.interviewerDecision === 'reject'
+                    ? '☑ KHÔNG PHÙ HỢP'
+                    : '☐ Đạt   ☐ Cân nhắc   ☐ Không đạt'}
+                </span>
+              </div>
+              <div className="text-slate-600">
+                Ngày PV:{' '}
+                <strong>
+                  {roleplay.interviewDate
+                    ? new Date(roleplay.interviewDate).toLocaleDateString('vi-VN')
+                    : '____ / ____ / 202__'}
+                </strong>{' '}
+                ({roleplay.interviewFormat || 'Trực tiếp'})
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-1 border-t border-dashed border-slate-200">
+              <div>
+                <span className="text-slate-500">Mức lương đề xuất:</span>{' '}
+                <strong>{roleplay.proposedSalary || '____________________'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500">Ngày có thể nhận việc:</span>{' '}
+                <strong>{roleplay.availableDate || '____________________'}</strong>
+              </div>
+            </div>
+
+            {roleplay.overallFeedback && (
+              <div className="pt-1 border-t border-dashed border-slate-200">
+                <span className="text-slate-500">Nhận xét chung:</span> {roleplay.overallFeedback}
+              </div>
+            )}
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-4 text-center text-xs">
             <div>
               <div className="font-bold uppercase">Đại diện Nhân sự (HR)</div>
-              <div className="text-[11px] text-slate-500">(Ký & ghi rõ họ tên)</div>
+              <div className="text-[11px] text-slate-500">(Ký &amp; ghi rõ họ tên)</div>
               <div className="h-16" />
             </div>
             <div>
               <div className="font-bold uppercase">Quản lý Vận hành</div>
-              <div className="text-[11px] text-slate-500">(Ký & ghi rõ họ tên)</div>
+              <div className="text-[11px] text-slate-500">(Ký &amp; ghi rõ họ tên)</div>
               <div className="h-16" />
             </div>
             <div>
               <div className="font-bold uppercase">Giám đốc Chuỗi Tutimi</div>
-              <div className="text-[11px] text-slate-500">(Ký & ghi rõ họ tên)</div>
+              <div className="text-[11px] text-slate-500">(Ký &amp; ghi rõ họ tên)</div>
               <div className="h-16" />
             </div>
           </div>
