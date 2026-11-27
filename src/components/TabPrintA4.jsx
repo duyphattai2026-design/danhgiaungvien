@@ -174,6 +174,43 @@ export default function TabPrintA4({
           </div>
         </div>
 
+        {/* 2-Column Summary: Kết quả Đánh giá Hồ sơ vs Kết quả Phỏng vấn */}
+        <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-lg border border-slate-300 bg-white p-3">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+              Cột 1: Kết quả Đánh giá Hồ sơ (CV)
+            </div>
+            <div className="mt-1 flex items-baseline justify-between gap-2">
+              <span className="text-lg font-extrabold text-amber-700">
+                {selected.evaluation.totalScore}/100 điểm
+              </span>
+              <span className="font-bold uppercase text-[11px] text-slate-800">
+                {selected.evaluation.statusShort}
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-300 bg-amber-50/40 p-3">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800">
+              Cột 2: Kết quả Phỏng vấn Thực chiến
+            </div>
+            <div className="mt-1 flex items-baseline justify-between gap-2">
+              <span className="text-lg font-extrabold text-slate-900">
+                {interviewSummary.hasAnyScore ? `${interviewSummary.overallInterview}/10 điểm` : 'Chưa chấm PV'}
+              </span>
+              <span className="font-bold uppercase text-[11px] text-amber-800">
+                {roleplay.interviewerDecision === 'hire'
+                  ? 'ĐỀ XUẤT TUYỂN DỤNG'
+                  : roleplay.interviewerDecision === 'consider'
+                  ? 'CÂN NHẮC / VÒNG 2'
+                  : roleplay.interviewerDecision === 'reject'
+                  ? 'KHÔNG PHÙ HỢP'
+                  : 'CHỜ PHỎNG VẤN'}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Section 1: CV Screening Table (Reactive Sync) */}
         <div className="mt-5">
           <div className="flex items-center justify-between mb-2">
@@ -370,6 +407,14 @@ export default function TabPrintA4({
               <div>
                 <span className="text-slate-500">Ngày có thể nhận việc:</span>{' '}
                 <strong>{roleplay.availableDate || '____________________'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500">Chi nhánh dự kiến:</span>{' '}
+                <strong>{roleplay.targetStore || '____________________'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500">Check người tham chiếu:</span>{' '}
+                <strong>{roleplay.referenceVerified ? '☑ Đã xác minh' : '☐ Chưa xác minh'}</strong>
               </div>
             </div>
 
