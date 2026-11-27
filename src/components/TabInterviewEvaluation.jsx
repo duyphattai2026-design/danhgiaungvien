@@ -15,6 +15,7 @@ import {
   PhoneCall,
   CheckSquare,
   Square,
+  RotateCcw,
 } from 'lucide-react';
 import { DEFAULT_ROLEPLAY_SCENARIOS } from '../data/defaultData';
 import StatusBadge from './StatusBadge';
@@ -137,6 +138,38 @@ export default function TabInterviewEvaluation({
     });
   };
 
+  const handleResetInterview = () => {
+    if (
+      !window.confirm(
+        `Xóa toàn bộ kết quả phỏng vấn hiện tại của "${selected.fullName}" để đánh giá lại từ đầu?`
+      )
+    ) {
+      return;
+    }
+    onUpdateCandidate(selected.id, {
+      roleplay: {
+        rp1Score: 0,
+        rp1Notes: '',
+        rp1Checks: [],
+        rp2Score: 0,
+        rp2Notes: '',
+        rp2Checks: [],
+        attitudeScore: 0,
+        leadershipScore: 0,
+        verificationScore: 0,
+        interviewFormat: 'Trực tiếp tại cửa hàng',
+        interviewDate: '',
+        panelNames: 'HR / Quản lý Vận hành / Giám đốc Chuỗi',
+        interviewerDecision: 'pending',
+        proposedSalary: '',
+        availableDate: '',
+        targetStore: '',
+        referenceVerified: false,
+        overallFeedback: '',
+      },
+    });
+  };
+
   const toggleCheckpoint = (checksKey, cpIndex) => {
     const current = Array.isArray(roleplay[checksKey]) ? roleplay[checksKey] : [];
     const next = current.includes(cpIndex)
@@ -249,6 +282,16 @@ export default function TabInterviewEvaluation({
                 </div>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleResetInterview}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-rose-400/40 bg-rose-500/20 px-3 py-2.5 text-xs font-bold text-rose-200 hover:bg-rose-500/30 shrink-0"
+              title="Xóa kết quả phỏng vấn để chấm lại"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Xóa đánh giá PV
+            </button>
 
             <button
               type="button"
@@ -428,7 +471,9 @@ export default function TabInterviewEvaluation({
                           <button
                             key={num}
                             type="button"
-                            onClick={() => updateRoleplay({ [scoreKey]: num })}
+                            onClick={() =>
+                              updateRoleplay({ [scoreKey]: scoreVal === num ? 0 : num })
+                            }
                             className={`h-8 w-8 rounded-lg text-xs font-bold transition ${
                               scoreVal === num
                                 ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/30'
@@ -548,7 +593,7 @@ export default function TabInterviewEvaluation({
                         <button
                           key={num}
                           type="button"
-                          onClick={() => updateRoleplay({ [item.key]: num })}
+                          onClick={() => updateRoleplay({ [item.key]: val === num ? 0 : num })}
                           className={`h-7 w-7 rounded-md text-[11px] font-bold transition ${
                             val === num
                               ? 'bg-sky-600 text-white shadow-2xs'
